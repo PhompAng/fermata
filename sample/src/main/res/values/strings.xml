@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">Fermata Sample</string>
+	<string name="title">Bill</string>
+	<string name="mode_viewmodel_asks">ViewModel asks between use cases</string>
+	<string name="mode_usecase_asks">Use case asks through InteractionPort</string>
+	<string name="remove">Remove</string>
+	<string name="item_with_code">%1$s · promo %2$s</string>
+	<string name="confirm_remove_title">Remove item?</string>
+	<string name="confirm_remove_message">Remove %1$s from the bill?</string>
+	<string name="cancel">Cancel</string>
+	<string name="confirm_code_loss_title">Release promo code?</string>
+	<string name="confirm_code_loss_message">Removing this item releases %1$s. Keep the code reserved or release it?</string>
+	<string name="release">Release</string>
+	<string name="keep">Keep</string>
+	<string name="retry_title">Release failed</string>
+	<string name="retry_message">%1$s. Try again?</string>
+	<string name="retry">Retry</string>
+	<string name="give_up">Give up</string>
+	<string name="last_outcome">Last outcome: %1$s</string>
+	<string name="reset">Reset bill</string>
+	<string name="open_fragment_sample">Open DialogFragment version</string>
+	<string name="title_xml">Bill (Views)</string>
+</resources>
