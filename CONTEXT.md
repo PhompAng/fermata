@@ -26,7 +26,7 @@ _Avoid_: Cancel (overloaded with coroutine cancellation and with "No" answers), 
 
 ## Flagged ambiguities
 
-- "Confirmation" is used in app code (e.g. `RemoveBillItemConfirmation`) for what this library calls an **Interaction**. Confirmation is one kind of Interaction whose Answer is a yes/no; it is not the general concept.
+- "Confirmation" is often used in app code for what this library calls an **Interaction**. Confirmation is one kind of Interaction whose Answer is a yes/no; it is not the general concept.
 
 ## Example dialogue
 

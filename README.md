@@ -79,7 +79,7 @@ Tapping outside or pressing back is a Dismissal, not an Answer. `ask` throws `In
 
 ## Render in Compose
 
-`InteractionHandler` collects the host's pending Interaction and hands it to your lambda. You own the dialogs, so use your Design System components. The reified type parameter lets the `when` be exhaustive over your sealed hierarchy, which is why the sealed interface carries the `R` type parameter. A pending Interaction of another type is skipped, not an error, so several handlers with disjoint hierarchies can share one host; an Interaction nobody handles simply stays pending.
+`InteractionHandler` collects the host's pending Interaction and hands it to your lambda. You own the dialogs, so use whatever components your app already has: Material 3, your own design system, anything composable. The reified type parameter lets the `when` be exhaustive over your sealed hierarchy, which is why the sealed interface carries the `R` type parameter. A pending Interaction of another type is skipped, not an error, so several handlers with disjoint hierarchies can share one host; an Interaction nobody handles simply stays pending.
 
 ```kotlin
 InteractionHandler<BillInteraction<*>>(host) { interaction ->
@@ -141,7 +141,7 @@ showInteractionDialogs(host = viewModel.interactionHost) { interaction ->
 
 ## Render with DialogFragment
 
-Use a generic, reusable `DialogFragment` such as `WnAlertDialog` from the Design System. It is configured through arguments, knows nothing about Fermata, and reports clicks to its Activity or parent Fragment through `OnDialogListener.onPositiveClick(requestCode, data)`. The listener answers the host's current pending Interaction, so no host reference ever reaches the dialog and the FragmentManager can recreate it freely on rotation.
+Use a generic, reusable `DialogFragment` of the kind most apps already have: configured through arguments, unaware of Fermata, reporting clicks to its Activity or parent Fragment through a listener such as `OnDialogListener.onPositiveClick(requestCode)`. The listener answers the host's current pending Interaction, so no host reference ever reaches the dialog and the FragmentManager can recreate it freely on rotation. The sample's `SampleAlertDialog` is a minimal dialog of this shape, used below as `AlertDialogFragment`; substitute your own.
 
 The Activity collects `host.pending` and shows each pending Interaction under a tag that carries `PendingInteraction.id`. A dialog restored after rotation has the tag for the still-pending id and is left alone; a new ask, even with equal content, has a new id and replaces any Interaction dialog still in the FragmentManager, including one that just dismissed itself on click. Nothing Fermata-specific goes into the dialog itself.
 
@@ -151,7 +151,7 @@ lifecycleScope.launch {
 		viewModel.interactionHost.pending.collect { pending ->
 			val wantedTag = pending?.let { "$TAG:${it.id}" }
 			supportFragmentManager.fragments
-				.filterIsInstance<WnAlertDialog>()
+				.filterIsInstance<AlertDialogFragment>()
 				.filter { it.tag.orEmpty().startsWith(TAG) && it.tag != wantedTag }
 				.forEach { it.dismissAllowingStateLoss() }
 			if (pending != null && supportFragmentManager.findFragmentByTag(wantedTag) == null) {
@@ -185,9 +185,9 @@ class BillViewModel(...) : ViewModel() {
 	}
 }
 
-class BillActivity : FragmentActivity(), WnAlertDialog.OnDialogListener {
+class BillActivity : FragmentActivity(), AlertDialogFragment.OnDialogListener {
 	private fun dialogFor(pending: PendingInteraction) = when (val i = pending.interaction as BillInteraction<*>) {
-		is ConfirmPromoCodeLoss -> WnAlertDialog.newInstance(
+		is ConfirmPromoCodeLoss -> AlertDialogFragment.newInstance(
 			title = getString(R.string.confirm_code_loss_title),
 			description = getString(R.string.confirm_code_loss, i.code),
 			positiveText = getString(R.string.release),
@@ -197,14 +197,14 @@ class BillActivity : FragmentActivity(), WnAlertDialog.OnDialogListener {
 		is RetryRelease -> ...
 	}
 
-	override fun onPositiveClick(requestCode: Int, data: Parcelable?) {
+	override fun onPositiveClick(requestCode: Int) {
 		when (requestCode) {
 			REQUEST_CONFIRM_PROMO_CODE_LOSS -> viewModel.confirmPromoCodeLoss(release = true)
 			REQUEST_RETRY_RELEASE -> viewModel.retryRelease(retry = true)
 		}
 	}
 
-	override fun onNegativeClick(requestCode: Int, data: Parcelable?) {
+	override fun onNegativeClick(requestCode: Int) {
 		when (requestCode) {
 			REQUEST_CONFIRM_PROMO_CODE_LOSS -> viewModel.confirmPromoCodeLoss(release = false)
 			REQUEST_RETRY_RELEASE -> viewModel.retryRelease(retry = false)
@@ -215,7 +215,7 @@ class BillActivity : FragmentActivity(), WnAlertDialog.OnDialogListener {
 
 `InteractionHost.answerPending<I, R>(value)` answers the pending Interaction only if it is an `I`, and returns whether the answer landed, which covers a late click from a dialog the Activity has already replaced. `dismissPending()` dismisses whatever is pending. Cancellation (back press, tap outside) forwards to `dismissPending`.
 
-The sample has no Design System dependency, so `SampleAlertDialog` stands in for `WnAlertDialog` with the same shape, and `FragmentBillActivity` is a complete version of this.
+The sample's `FragmentBillActivity` is a complete version of this.
 
 ## Test
 
